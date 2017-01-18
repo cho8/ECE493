@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ImageProcessor</string>
+    <string name="title_activity_user_settings">UserSettingsActivity</string>
+    <string name="hello">Hello world!</string>
+</resources>
