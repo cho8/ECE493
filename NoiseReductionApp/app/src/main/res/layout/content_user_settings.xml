@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="cho8.imageprocessor.UserSettingsActivity"
+    tools:context="cho8.noisereduction.UserSettingsActivity"
     tools:showIn="@layout/activity_user_settings">
 
 </RelativeLayout>

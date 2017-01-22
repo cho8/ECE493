@@ -1,4 +1,4 @@
-package cho8.imageprocessor;
+package cho8.noisereduction;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

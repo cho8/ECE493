@@ -1,4 +1,4 @@
-package cho8.imageprocessor;
+package cho8.noisereduction;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;

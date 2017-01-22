@@ -1,4 +1,4 @@
-package cho8.imageprocessor;
+package cho8.noisereduction;
 
 import org.junit.Test;
 
