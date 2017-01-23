@@ -8,14 +8,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/optionFrame"
-        android:id="@+id/imageFrame">
+        android:layout_above="@+id/layoutOption"
+        android:id="@+id/layoutImage">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            android:id="@+id/openImage" >
+            android:id="@+id/imageSelected" >
 
         </ImageView>
 
@@ -24,9 +24,15 @@
             android:layout_width="match_parent"
             android:gravity="center"
             android:text="To start, open a an existing image..."
-            android:id="@+id/initialText">
+            android:id="@+id/textInitial">
 
         </TextView>
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar" />
 
     </RelativeLayout>
 
@@ -35,20 +41,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:id="@+id/optionFrame">
+        android:id="@+id/layoutOption">
 
         <Button
             android:text="Mean Filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="invisible"
-            android:id="@+id/meanButton" />
+            android:id="@+id/buttonMean" />
         <Button
             android:text="Median Filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/meanButton"
+            android:layout_below="@id/buttonMean"
             android:visibility="invisible"
-            android:id="@+id/medianButton" />
+            android:id="@+id/buttonMedian" />
     </RelativeLayout>
 </RelativeLayout>

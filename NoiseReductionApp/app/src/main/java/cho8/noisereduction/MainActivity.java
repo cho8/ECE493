@@ -1,11 +1,14 @@
 package cho8.noisereduction;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,14 +16,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AsyncResponse{
 
-    private String selectedImagePath = "";
     final private int SELECT_IMAGE = 909;
 
     private ImageView imageView;
@@ -29,20 +34,77 @@ public class MainActivity extends AppCompatActivity {
     private Button meanFilterButton;
     private Button medianFilterButton;
 
+    private Bitmap selectedImageBm;
+    private Bitmap filteredBm;
+
+    private SharedPreferences sharedPref;
+    private ProgressBar mProgress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        imageView = (ImageView)findViewById(R.id.openImage);
-        initialTextView = (TextView)findViewById(R.id.initialText);
+        imageView = (ImageView)findViewById(R.id.imageSelected);
+        initialTextView = (TextView)findViewById(R.id.textInitial);
 
-        meanFilterButton = (Button)findViewById(R.id.meanButton);
-        medianFilterButton = (Button)findViewById(R.id.medianButton);
+        mProgress = (ProgressBar) findViewById(R.id.progressBar);
 
+        meanFilterButton = (Button)findViewById(R.id.buttonMean);
+        medianFilterButton = (Button)findViewById(R.id.buttonMedian);
 
+        meanFilterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("MeanFilterLog", "Button Pressed");
+                executeFilter(new MeanFilter(selectedImageBm, sharedPref.getInt("MEAN_SIZE",1)));
+            }
+        });
 
+        medianFilterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                executeFilter(new MedianFilter(selectedImageBm, sharedPref.getInt("MEDIAN_SIZE",0)));
+            }
+        });
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.option_menu, menu); //your file name
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        sharedPref = this.getSharedPreferences("SHARED_PREFERENCES",Context.MODE_PRIVATE);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.itemBrowse:
+                Intent browseIntent = new Intent();
+                browseIntent.setType("image/*");
+                browseIntent.setAction(Intent.ACTION_GET_CONTENT);
+
+                startActivityForResult(Intent.createChooser(browseIntent, "Select Image"), SELECT_IMAGE);
+                return true;
+
+            case R.id.itemSettings:
+                Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+
+                startActivity(settingsIntent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -52,11 +114,13 @@ public class MainActivity extends AppCompatActivity {
             case SELECT_IMAGE :
 
                 if (resultCode == Activity.RESULT_OK) {
-                    Bitmap selectedImageBm = null;
                     try
                     {
                         // Display selected image
                         selectedImageBm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putInt("MAXSIZE", Math.min(selectedImageBm.getWidth(), selectedImageBm.getHeight()));
+                        editor.commit();
                         imageView.setImageBitmap(selectedImageBm);
 
                         // Set buttons
@@ -75,28 +139,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu); //your file name
-        return super.onCreateOptionsMenu(menu);
+    public void executeFilter(AbstractFilter filter) {
+
+        mProgress.setProgress(0);
+
+        FilterTask filterTask= new FilterTask();
+        filterTask.delegate = this;
+        filterTask.execute(filter, this);
+
+
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public void processFinish(Bitmap output) {
 
-        switch (item.getItemId()) {
-            case R.id.browseItem:
-                //your code
-                // EX : call intent if you want to swich to other activity
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-
-                startActivityForResult(Intent.createChooser(intent, "Select Image"), SELECT_IMAGE);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        imageView.setImageBitmap(output);
+        Log.i("MeanFilterLog", "ALL DONE!!");
     }
 }

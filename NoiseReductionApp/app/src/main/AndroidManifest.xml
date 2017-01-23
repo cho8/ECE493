@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="cho8.noisereduction.UserSettingsActivity"
+            android:name="cho8.noisereduction.SettingsActivity"
             android:label="@string/title_activity_user_settings"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
