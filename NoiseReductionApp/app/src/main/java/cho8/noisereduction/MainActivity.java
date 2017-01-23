@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
             @Override
             public void onClick(View v) {
                 Log.i("MeanFilterLog", "Button Pressed");
-                executeFilter(new MeanFilter(selectedImageBm, sharedPref.getInt("MEAN_SIZE",1)));
+                executeFilter(new MeanFilter(selectedImageBm, sharedPref.getInt("MEAN_SIZE",3)));
             }
         });
 

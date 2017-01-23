@@ -2,6 +2,7 @@ package cho8.noisereduction;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -22,7 +23,7 @@ public abstract class AbstractFilter extends Observable {
         maskSize = size;
     }
 
-    protected abstract int[] applyFilterWindow(int[] pixels);
+    protected abstract int calcFilterMask(int[] pixels);
 
     public Bitmap applyFilter() {
 
@@ -31,31 +32,28 @@ public abstract class AbstractFilter extends Observable {
         int x0, y0, x1, y1; // top left and bottom right coordinates
         int[] pixels;
 
-        Log.i("MeanFilterLog", ""+maskSize+"");
+        Log.i("MeanFilterLog", "MaskSize: "+maskSize+"");
         // iterate through bitmap with given window size
-//        for (int i=0; i < imageBm.getWidth(); i++) {
-//            x0 = (i - (maskSize-1)/2); // -1 to keep odd
-//            x0 = (x0 >= 0) ? x0 : 0;    // keep within bounds
-//            x1 = (i + (maskSize-1)/2);
-//            x1 = (x1 <= imageBm.getWidth()) ? x1 : imageBm.getWidth();
-//
-//            for (int j=0; j < imageBm.getHeight(); j++) {
-//                y0 = j - (maskSize-1)/2;
-//                y0 = (y0 >= 0) ? y0 : 0;    // keep within bounds
-//                y1 = j + (maskSize-1)/2;
-//                y1 = (y1 <= imageBm.getHeight()) ? y1 : imageBm.getHeight();
-//
-//                pixels = new int[maskSize * maskSize];
-//                imageBm.getPixels(pixels,0,maskSize, x0, y0, x1-x0, y1-y0);
-//
-//
-//                newBm.setPixels(applyFilterWindow(pixels), 0, maskSize, x0, y0, x1-x0, y1-y0);
-//            }
-//        }
-        newBm =  Bitmap.createBitmap(imageBm.getWidth(), imageBm.getHeight(), imageBm.getConfig()); // this creates a MUTABLE bitmap
+        for (int i=0; i < imageBm.getWidth(); i++) {
+            x0 = (i - (maskSize-1)/2); // -1 to keep odd
+            x0 = (x0 >= 0) ? x0 : 0;    // keep within bounds
+            x1 = (i + (maskSize-1)/2);
+            x1 = (x1 <= imageBm.getWidth()) ? x1 : imageBm.getWidth();
 
-        Canvas canvas = new Canvas(newBm);
-        canvas.drawColor(0xFFFFFFFF);
+            for (int j=0; j < imageBm.getHeight(); j++) {
+                y0 = j - (maskSize-1)/2;
+                y0 = (y0 >= 0) ? y0 : 0;    // keep within bounds
+                y1 = j + (maskSize-1)/2;
+                y1 = (y1 <= imageBm.getHeight()) ? y1 : imageBm.getHeight();
+
+                // Log.i("AbstractFilterCoords", String.format(" %d,%d  %d,%d  %d,%d", i,j, x0,y0, x1,y1));
+
+                pixels = new int[(x1-x0)*(y1-y0)];
+                imageBm.getPixels(pixels,0, x1-x0, x0, y0, x1-x0, y1-y0);
+
+                newBm.setPixel(i,j,calcFilterMask(pixels));
+            }
+        }
 
         return newBm;
     }

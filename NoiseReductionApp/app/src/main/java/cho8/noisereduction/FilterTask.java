@@ -34,7 +34,6 @@ public class FilterTask extends AsyncTask<Object, Double, Bitmap> {
 
     @Override
     protected void onProgressUpdate(Double[] values) {
-
         super.onProgressUpdate();
 
     }
