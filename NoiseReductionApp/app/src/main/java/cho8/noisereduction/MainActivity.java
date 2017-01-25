@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
     private Bitmap filteredBm;
 
     private SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
     private ProgressBar mProgress;
 
     @Override
@@ -53,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         meanFilterButton = (Button)findViewById(R.id.buttonMean);
         medianFilterButton = (Button)findViewById(R.id.buttonMedian);
 
+
+
+
         meanFilterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,9 +68,17 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         medianFilterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-//                executeFilter(new MedianFilter(selectedImageBm, sharedPref.getInt("MEDIAN_SIZE",0)));
+                executeFilter(new MedianFilter(selectedImageBm, sharedPref.getInt("MEDIAN_SIZE",3)));
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // default values upon creation
+        sharedPref = this.getSharedPreferences("SHARED_PREFERENCES",Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
     }
 
     @Override
@@ -74,14 +86,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.option_menu, menu); //your file name
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        sharedPref = this.getSharedPreferences("SHARED_PREFERENCES",Context.MODE_PRIVATE);
-
     }
 
     @Override
@@ -118,9 +122,10 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
                     {
                         // Display selected image
                         selectedImageBm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
-                        SharedPreferences.Editor editor = sharedPref.edit();
+
                         editor.putInt("MAXSIZE", Math.min(selectedImageBm.getWidth(), selectedImageBm.getHeight()));
                         editor.commit();
+
                         imageView.setImageBitmap(selectedImageBm);
 
                         // Set buttons
@@ -147,13 +152,19 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         filterTask.delegate = this;
         filterTask.execute(filter, this);
 
-
     }
 
     @Override
     public void processFinish(Bitmap output) {
 
         imageView.setImageBitmap(output);
-        Log.i("MeanFilterLog", "ALL DONE!!");
+        Log.i("MeanFilterLog", "Filter complete");
     }
+
+    @Override
+    public void progressUpdate(int progress) {
+        Log.i("MedianProgress", String.valueOf(progress));
+        mProgress.setProgress((progress));
+    }
+
 }

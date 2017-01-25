@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import java.util.Observable;
+import java.util.Observer;
 
 import static android.R.attr.bitmap;
 
@@ -18,14 +19,17 @@ public abstract class AbstractFilter extends Observable {
     protected Bitmap imageBm;
     protected int maskSize;
 
+
     public AbstractFilter(Bitmap image, int size) {
         imageBm = image;
         maskSize = size;
+
     }
 
     protected abstract int calcFilterMask(int[] pixels);
 
     public Bitmap applyFilter() {
+
 
         Bitmap newBm = imageBm.copy(Bitmap.Config.ARGB_8888, true);
 
@@ -40,6 +44,11 @@ public abstract class AbstractFilter extends Observable {
             x1 = (i + (maskSize-1)/2);
             x1 = (x1 <= imageBm.getWidth()) ? x1 : imageBm.getWidth();
 
+            // progress update
+            Log.i("MeanFilterLog", "Progress: "+(i*100)/imageBm.getWidth()+"");
+            notifyObservers((i*100)/imageBm.getWidth());
+
+
             for (int j=0; j < imageBm.getHeight(); j++) {
                 y0 = j - (maskSize-1)/2;
                 y0 = (y0 >= 0) ? y0 : 0;    // keep within bounds
@@ -49,6 +58,9 @@ public abstract class AbstractFilter extends Observable {
                 // Log.i("AbstractFilterCoords", String.format(" %d,%d  %d,%d  %d,%d", i,j, x0,y0, x1,y1));
 
                 pixels = new int[(x1-x0)*(y1-y0)];
+
+                if (this.maskSize <= 1 || pixels.length == 0) { return this.imageBm;}
+
                 imageBm.getPixels(pixels,0, x1-x0, x0, y0, x1-x0, y1-y0);
 
                 newBm.setPixel(i,j,calcFilterMask(pixels));
@@ -57,6 +69,7 @@ public abstract class AbstractFilter extends Observable {
 
         return newBm;
     }
+
 }
 
 

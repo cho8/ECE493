@@ -14,27 +14,29 @@ import java.util.Observer;
  * Created by cho on 2017-01-22.
  */
 
-public class FilterTask extends AsyncTask<Object, Double, Bitmap> {
+public class FilterTask extends AsyncTask<Object, Integer, Bitmap> implements Observer{
 
     public AsyncResponse delegate = null;
 
     @Override
     protected void onPreExecute() {
+
         super.onPreExecute();
+        delegate.progressUpdate(0);
     }
 
     @Override
     protected Bitmap doInBackground(Object[] params) {
-        Log.i("MeanFilterLog", "doing in Background");
         AbstractFilter filter = (AbstractFilter) params[0];
+        filter.addObserver(this);
         Bitmap newBm = filter.applyFilter();
-        Log.i("MeanFilterLog", "donee task");
         return newBm;
     }
 
     @Override
-    protected void onProgressUpdate(Double[] values) {
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate();
+        delegate.progressUpdate(values[0]);
 
     }
 
@@ -45,4 +47,9 @@ public class FilterTask extends AsyncTask<Object, Double, Bitmap> {
     }
 
 
+    @Override
+    public void update(Observable o, Object arg) {
+        Log.i("ProgressUpdate", String.valueOf(arg));
+        publishProgress((int)arg);
+    }
 }
