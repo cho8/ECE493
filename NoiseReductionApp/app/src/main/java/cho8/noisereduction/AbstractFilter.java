@@ -47,6 +47,7 @@ public abstract class AbstractFilter extends Observable {
             // progress update
             Log.i("MeanFilterLog", "Progress: "+(i*100)/imageBm.getWidth()+"");
             notifyObservers((i*100)/imageBm.getWidth());
+            this.setChanged();
 
 
             for (int j=0; j < imageBm.getHeight(); j++) {

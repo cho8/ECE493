@@ -50,7 +50,6 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mToast.setText(String.valueOf( progress));
-                Log.i("SeekMean", ""+progress+"");
                 meanSize = progress;
                 mToast.show();
             }
@@ -68,7 +67,6 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mToast.setText(String.valueOf( (progress)));
-                Log.i("SeekMedian", ""+(progress+""));
                 medianSize = (progress);
                 mToast.show();
             }

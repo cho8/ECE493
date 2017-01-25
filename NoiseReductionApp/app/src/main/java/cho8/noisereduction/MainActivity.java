@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         initialTextView = (TextView)findViewById(R.id.textInitial);
 
         mProgress = (ProgressBar) findViewById(R.id.progressBar);
+        mProgress.setProgress(0);
 
         meanFilterButton = (Button)findViewById(R.id.buttonMean);
         medianFilterButton = (Button)findViewById(R.id.buttonMedian);
@@ -158,12 +159,12 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
     public void processFinish(Bitmap output) {
 
         imageView.setImageBitmap(output);
-        Log.i("MeanFilterLog", "Filter complete");
+        mProgress.setProgress(0);
     }
 
     @Override
     public void progressUpdate(int progress) {
-        Log.i("MedianProgress", String.valueOf(progress));
+        Log.i("FilterProgress", String.valueOf(progress));
         mProgress.setProgress((progress));
     }
 
