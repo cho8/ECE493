@@ -43,8 +43,6 @@ public class SettingsActivity extends AppCompatActivity {
         sharedPref = getApplicationContext().getSharedPreferences("SHARED_PREFERENCES",Context.MODE_PRIVATE);
         maxSize = setOddMaxSize(sharedPref.getInt("MAX_SIZE",1));
 
-        Log.i("SettingsMax", "Max size: "+String.valueOf(maxSize));
-
         meanSeek = (SeekBar) findViewById(R.id.seekMean);
         meanSeek.incrementProgressBy(2);
 
@@ -172,12 +170,13 @@ public class SettingsActivity extends AppCompatActivity {
 
 
         // Touch interceptor for putting edit texts in and out of focus
+        // http://stackoverflow.com/questions/4828636/edittext-clear-focus-on-touch-outside
         FrameLayout touchInterceptor = (FrameLayout)findViewById(R.id.touchInterceptor);
         touchInterceptor.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (editMean.isFocused()) {
+                    if (editMean.isFocused() || editMedian.isFocused()) {
                         Rect outRect = new Rect();
                         editMean.getGlobalVisibleRect(outRect);
 
@@ -187,23 +186,15 @@ public class SettingsActivity extends AppCompatActivity {
                             editMean.setText(String.valueOf(meanSize));
                             meanSeek.setProgress(meanSize);
                             editMean.clearFocus();
-                            InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                        }
-                    } else if (editMedian.isFocused()) {
-                        Rect outRect = new Rect();
-                        editMedian.getGlobalVisibleRect(outRect);
-
-                        if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
 
                             medianSize = sanitizeSizeInput(medianSize);
                             editMedian.setText(String.valueOf(medianSize));
                             medianSeek.setProgress(medianSize);
                             editMedian.clearFocus();
+
                             InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                         }
-
                     }
                 }
                 return false;

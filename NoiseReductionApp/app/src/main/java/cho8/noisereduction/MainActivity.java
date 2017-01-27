@@ -163,14 +163,13 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
 
     @Override
     public void processFinish(Bitmap output) {
-
+        selectedImageBm = output;
         imageView.setImageBitmap(output);
         mProgress.setProgress(0);
     }
 
     @Override
     public void progressUpdate(int progress) {
-        Log.i("FilterProgress", String.valueOf(progress));
         mProgress.setProgress((progress));
     }
 

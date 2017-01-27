@@ -36,7 +36,6 @@ public abstract class AbstractFilter extends Observable {
         int x0, y0, x1, y1; // top left and bottom right coordinates
         int[] pixels;
 
-        Log.i("MeanFilterLog", "MaskSize: "+maskSize+"");
         // iterate through bitmap with given window size
         for (int i=0; i < imageBm.getWidth(); i++) {
             x0 = (i - (maskSize-1)/2); // -1 to keep odd
@@ -45,7 +44,6 @@ public abstract class AbstractFilter extends Observable {
             x1 = (x1 <= imageBm.getWidth()) ? x1 : imageBm.getWidth();
 
             // progress update
-            Log.i("MeanFilterLog", "Progress: "+(i*100)/imageBm.getWidth()+"");
             notifyObservers((i*100)/imageBm.getWidth());
             this.setChanged();
 
@@ -55,8 +53,6 @@ public abstract class AbstractFilter extends Observable {
                 y0 = (y0 >= 0) ? y0 : 0;    // keep within bounds
                 y1 = j + (maskSize-1)/2;
                 y1 = (y1 <= imageBm.getHeight()) ? y1 : imageBm.getHeight();
-
-                // Log.i("AbstractFilterCoords", String.format(" %d,%d  %d,%d  %d,%d", i,j, x0,y0, x1,y1));
 
                 pixels = new int[(x1-x0)*(y1-y0)];
 
