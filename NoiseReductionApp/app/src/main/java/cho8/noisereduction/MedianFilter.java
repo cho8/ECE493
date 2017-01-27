@@ -22,9 +22,6 @@ public class MedianFilter extends AbstractFilter{
         int[] A = new int[pixels.length];
 
 
-        Arrays.sort(pixels);
-
-
         for (int i=0; i<pixels.length; i++) {
             R[i] = Color.red(pixels[i]);
             G[i] = Color.green(pixels[i]);

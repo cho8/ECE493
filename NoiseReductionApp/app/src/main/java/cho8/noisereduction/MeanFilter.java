@@ -20,6 +20,7 @@ public class MeanFilter extends AbstractFilter {
     @Override
     protected int calcFilterMask(int[] pixels) {
 
+        int len = pixels.length;
         // Channel sums
         int R=0;
         int G=0;
@@ -33,13 +34,7 @@ public class MeanFilter extends AbstractFilter {
             A += Color.alpha(p);
         }
 
-        R = R / pixels.length;
-        G = G / pixels.length;
-        B = B / pixels.length;
-        A = A / pixels.length;
-
-
-        return Color.argb(A, R, G, B);
+        return Color.argb(A/len, R/len, G/len, B/len);
     }
 
 }

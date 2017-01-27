@@ -38,10 +38,9 @@ public abstract class AbstractFilter extends Observable {
 
         // iterate through bitmap with given window size
         for (int i=0; i < imageBm.getWidth(); i++) {
-            x0 = (i - (maskSize-1)/2); // -1 to keep odd
-            x0 = (x0 >= 0) ? x0 : 0;    // keep within bounds
-            x1 = (i + (maskSize-1)/2);
-            x1 = (x1 <= imageBm.getWidth()) ? x1 : imageBm.getWidth();
+            x0 = ensureRange((i - (maskSize-1)/2), 0, imageBm.getWidth()-1);
+
+            x1 = ensureRange((i + (maskSize-1)/2), 0, imageBm.getWidth()-1);
 
             // progress update
             notifyObservers((i*100)/imageBm.getWidth());
@@ -49,10 +48,9 @@ public abstract class AbstractFilter extends Observable {
 
 
             for (int j=0; j < imageBm.getHeight(); j++) {
-                y0 = j - (maskSize-1)/2;
-                y0 = (y0 >= 0) ? y0 : 0;    // keep within bounds
-                y1 = j + (maskSize-1)/2;
-                y1 = (y1 <= imageBm.getHeight()) ? y1 : imageBm.getHeight();
+
+                y0 = ensureRange((j - (maskSize-1)/2), 0 ,imageBm.getHeight()-1);
+                y1 = ensureRange((j + (maskSize-1)/2), 0, imageBm.getHeight()-1);
 
                 pixels = new int[(x1-x0)*(y1-y0)];
 
@@ -67,6 +65,11 @@ public abstract class AbstractFilter extends Observable {
         return newBm;
     }
 
+    // quick function to ensure value is within bounds
+    // http://stackoverflow.com/questions/17933493/java-limit-number-between-min-and-max
+    int ensureRange(int value, int min, int max) {
+        return Math.min(Math.max(value, min), max);
+    }
 }
 
 
