@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Observable;
@@ -35,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
     private Button medianFilterButton;
 
     private Bitmap selectedImageBm;
-    private Bitmap filteredBm;
 
     private SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
@@ -61,15 +61,14 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         meanFilterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("MeanFilterLog", "Button Pressed");
-                executeFilter(new MeanFilter(selectedImageBm, sharedPref.getInt("MEAN_SIZE",3)));
+                executeFilter(new MeanFilter(selectedImageBm, sharedPref.getInt("MEAN_SIZE",1)));
             }
         });
 
         medianFilterButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                executeFilter(new MedianFilter(selectedImageBm, sharedPref.getInt("MEDIAN_SIZE",3)));
+                executeFilter(new MedianFilter(selectedImageBm, sharedPref.getInt("MEDIAN_SIZE",1)));
             }
         });
     }
@@ -124,7 +123,9 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
                         // Display selected image
                         selectedImageBm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
 
-                        editor.putInt("MAXSIZE", Math.min(selectedImageBm.getWidth(), selectedImageBm.getHeight()));
+                        editor.putInt("MAX_SIZE", Math.min(selectedImageBm.getWidth(), selectedImageBm.getHeight()));
+                        editor.putInt("MEAN_SIZE", 1);
+                        editor.putInt("MEDIAN_SIZE", 1);
                         editor.commit();
 
                         imageView.setImageBitmap(selectedImageBm);
@@ -147,6 +148,11 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
 
     public void executeFilter(AbstractFilter filter) {
 
+        if (filter.maskSize <= 1) {
+            Toast.makeText(getApplicationContext(), "Set the mask settings!",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mProgress.setProgress(0);
 
         FilterTask filterTask= new FilterTask();
@@ -167,5 +173,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         Log.i("FilterProgress", String.valueOf(progress));
         mProgress.setProgress((progress));
     }
+
+
 
 }

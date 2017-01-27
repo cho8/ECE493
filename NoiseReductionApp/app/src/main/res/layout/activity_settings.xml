@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,32 +7,65 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context="cho8.noisereduction.SettingsActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/touchInterceptor">
+    </FrameLayout>
 
     <TextView
         android:id="@+id/textMean"
-        android:text="Mean Filter Size (Pixels)"
+        android:text="Mean Filter Size"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:paddingTop="@dimen/activity_vertical_margin"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:inputType="number"
+        android:clickable="true"
+        android:id="@+id/editMean"
+        android:hint="pixels" />
 
     <SeekBar
         android:id="@+id/seekMean"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/editMean"
         android:paddingTop="@dimen/activity_vertical_margin"/>
 
     <TextView
         android:id="@+id/textMedian"
-        android:text="Median Filter Size (Pixels)"
+        android:text="Median Filter Size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/seekMean"
         android:paddingTop="@dimen/activity_vertical_margin"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekMean"
+        android:layout_alignParentEnd="true"
+        android:inputType="number"
+        android:clickable="true"
+        android:id="@+id/editMedian"
+        android:hint="pixels" />
 
     <SeekBar
         android:id="@+id/seekMedian"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/activity_vertical_margin" />
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/editMedian"/>
+
 
     <Button
         android:id="@+id/buttonApply"
@@ -40,6 +73,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:paddingTop="@dimen/activity_vertical_margin"/>
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_below="@id/seekMedian"/>
 
-</LinearLayout>
+
+</RelativeLayout>
