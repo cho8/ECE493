@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/itemBrowse"
+        android:title="Open image"
+        android:icon="@drawable/ic_action_menu"/>
+    <item android:id="@+id/itemCamera"
+        android:title="Take photo"
+        android:icon="@drawable/ic_action_menu"/>
+    <item android:id="@+id/itemSettings"
+        android:title="Change settings"
+        android:icon="@drawable/ic_action_menu"/>
+</menu>
