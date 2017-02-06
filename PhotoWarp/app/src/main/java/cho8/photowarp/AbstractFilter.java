@@ -1,6 +1,9 @@
 package cho8.photowarp;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.RenderScript;
 
 import java.util.Observable;
 
@@ -10,59 +13,26 @@ import java.util.Observable;
 public abstract class AbstractFilter extends Observable {
 
     protected Bitmap imageBm;
-    protected int maskSize;
+    protected RenderScript rs;
+    protected ScriptC_warp script;
+    protected Allocation in, out;
 
 
-    public AbstractFilter(Bitmap image, int size) {
+    public AbstractFilter(Context c, Bitmap image) {
         imageBm = image;
-        maskSize = size;
+        rs = RenderScript.create(c);
+        script = new ScriptC_warp(rs);
 
+        in = Allocation.createFromBitmap(rs, image, Allocation.MipmapControl.MIPMAP_NONE,Allocation.USAGE_SCRIPT);
+        out = Allocation.createTyped(rs, in.getType());
+
+        script.set_height(image.getHeight());
+        script.set_width(image.getWidth());
+        script.bind_input(in);
+        
     }
 
-    protected abstract int calcFilterMask(int[] pixels);
-
-    public Bitmap applyFilter() {
-
-
-        Bitmap newBm = imageBm.copy(Bitmap.Config.ARGB_8888, true);
-
-        int x0, y0, x1, y1; // top left and bottom right coordinates
-        int[] pixels;
-
-        // iterate through bitmap with given window size
-        for (int i=0; i < imageBm.getWidth(); i++) {
-            x0 = ensureRange((i - (maskSize-1)/2), 0, imageBm.getWidth()-1);
-
-            x1 = ensureRange((i + (maskSize-1)/2), 0, imageBm.getWidth()-1);
-
-            // progress update
-            notifyObservers((i*100)/imageBm.getWidth());
-            this.setChanged();
-
-
-            for (int j=0; j < imageBm.getHeight(); j++) {
-
-                y0 = ensureRange((j - (maskSize-1)/2), 0 ,imageBm.getHeight()-1);
-                y1 = ensureRange((j + (maskSize-1)/2), 0, imageBm.getHeight()-1);
-
-                pixels = new int[(x1-x0)*(y1-y0)];
-
-                if (this.maskSize <= 1 || pixels.length == 0) { return this.imageBm;}
-
-                imageBm.getPixels(pixels,0, x1-x0, x0, y0, x1-x0, y1-y0);
-
-                newBm.setPixel(i,j,calcFilterMask(pixels));
-            }
-        }
-
-        return newBm;
-    }
-
-    // quick function to ensure value is within bounds
-    // http://stackoverflow.com/questions/17933493/java-limit-number-between-min-and-max
-    int ensureRange(int value, int min, int max) {
-        return Math.min(Math.max(value, min), max);
-    }
+    public abstract Bitmap applyFilter();
 }
 
 
