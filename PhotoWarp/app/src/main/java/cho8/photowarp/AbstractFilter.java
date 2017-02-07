@@ -14,25 +14,30 @@ public abstract class AbstractFilter extends Observable {
 
     protected Bitmap imageBm;
     protected RenderScript rs;
-    protected ScriptC_warp script;
+
     protected Allocation in, out;
+    protected ScriptC_transform script;
 
 
     public AbstractFilter(Context c, Bitmap image) {
         imageBm = image;
         rs = RenderScript.create(c);
-        script = new ScriptC_warp(rs);
 
         in = Allocation.createFromBitmap(rs, image, Allocation.MipmapControl.MIPMAP_NONE,Allocation.USAGE_SCRIPT);
         out = Allocation.createTyped(rs, in.getType());
 
+        script = new ScriptC_transform(rs);
         script.set_height(image.getHeight());
         script.set_width(image.getWidth());
         script.bind_input(in);
-        
+
     }
 
-    public abstract Bitmap applyFilter();
+    public abstract void applyFilter();
+
+    public Allocation getResult() {
+        return out;
+    }
 }
 
 

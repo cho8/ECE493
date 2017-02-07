@@ -46,6 +46,12 @@
         android:layout_alignParentBottom="true"
 
         android:id="@+id/layoutOption">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:id="@+id/buttonFilter"
+            android:text="Filter"/>
 
         <Button
             android:text="Undo"

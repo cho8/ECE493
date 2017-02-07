@@ -4,16 +4,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 /**
- * Created by cho on 2017-02-05.
+ * Created by cho on 2017-02-06.
  */
 
 public class SwirlFilter extends AbstractFilter {
-
-    public SwirlFilter(Context c, Bitmap bm) {
-        super(c, bm);
+    public SwirlFilter(Context c, Bitmap image) {
+        super(c, image);
     }
+
     @Override
-    public Bitmap applyFilter() {
-        return null;
+    public void applyFilter() {
+        script.forEach_swirl(in, out);
     }
 }

@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v8.renderscript.Allocation;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,7 +35,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AsyncResponse{
 
     final private int SELECT_IMAGE_CODE = 1;
     final private int CAMERA_IMAGE_CODE = 2;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button undoButton;
     private Button redoButton;
+    private Button filterButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +69,12 @@ public class MainActivity extends AppCompatActivity {
         undoButton = (Button) findViewById(R.id.buttonUndo);
         redoButton = (Button) findViewById(R.id.buttonRedo);
 
+        filterButton = (Button) findViewById(R.id.buttonFilter);
+
         undoButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                undoImage();
             }
         });
 
@@ -81,7 +85,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        filterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                executeFilter(new SwirlFilter(getApplicationContext(),imageBmList.peek()));
+            }
+        });
 
+        updateUI();
     }
 
     @Override
@@ -141,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         // Display selected image
                         Bitmap imageBm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
+                        imageBmList = new LinkedList<Bitmap> ();
                         setImage(imageBm);
 
                         // Set buttons
@@ -158,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
 //                        saveCameraImage(data);
                         initialTextView.setVisibility(View.INVISIBLE);
-                        imageBmList = new LinkedList<Bitmap> ();
+
                         Bitmap imageBm = (Bitmap) data.getExtras().get("data");
 
                         setImage((Bitmap) data.getExtras().get("data"));
@@ -171,8 +183,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void executeFilter(AbstractFilter filter) {
 
-    private void setImage(Bitmap data) throws IOException{
+        mProgress.setProgress(0);
+
+        FilterTask filterTask= new FilterTask();
+        filterTask.delegate = this;
+        filterTask.execute(filter, this);
+
+    }
+
+
+    private void setImage(Bitmap data){
 
 
         imageBmList.addFirst(data);
@@ -181,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
         while (undoSetting < imageBmList.size())
         {
-            Log.i("UndoHistoryRemove", "Settings "+undoSetting+" Size "+imageBmList.size());
+            Log.i("UndoHistorySetting", "Settings "+undoSetting+" Size "+imageBmList.size());
             imageBmList.removeLast();
         }
 
@@ -194,6 +216,9 @@ public class MainActivity extends AppCompatActivity {
     private void updateUI() {
         if (imageBmList.peek() != null) {
             initialTextView.setVisibility(View.INVISIBLE);
+            filterButton.setEnabled(true);
+        } else {
+            filterButton.setEnabled(false);
         }
 
         if (imageBmList.size() > 1)
@@ -202,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
         } else
         {
             undoButton.setEnabled(false);
+
         }
     }
 
@@ -229,4 +255,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void undoImage() {
+        imageBmList.removeFirst();
+        Bitmap bm = imageBmList.pop();
+        setImage(bm);
+        updateUI();
+        Log.i("UndoImageCount", String.valueOf(imageBmList.size()));
+    }
+
+    @Override
+    public void processFinish(Allocation output) {
+        Bitmap bm = imageBmList.peek().copy(Bitmap.Config.ARGB_8888, true);
+        output.copyTo(bm);
+        setImage(bm);
+        updateUI();
+
+
+    }
+
+    @Override
+    public void progressUpdate(int progress) {
+
+    }
 }
