@@ -8,12 +8,13 @@ import android.graphics.Bitmap;
  */
 
 public class SwirlFilter extends AbstractFilter {
+
     public SwirlFilter(Context c, Bitmap image) {
         super(c, image);
     }
 
     @Override
     public void applyFilter() {
-        script.forEach_swirl(in, out);
+        script.invoke_swirl(0.005f);
     }
 }

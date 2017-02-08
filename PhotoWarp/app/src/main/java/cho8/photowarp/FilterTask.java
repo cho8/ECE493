@@ -12,7 +12,7 @@ import java.util.Observer;
  * Created by cho on 2017-01-22.
  */
 
-public class FilterTask extends AsyncTask<Object, Integer, Allocation> implements Observer{
+public class FilterTask extends AsyncTask<Object, Integer, Bitmap> implements Observer{
 
     // http://stackoverflow.com/questions/12575068/how-to-get-the-result-of-onpostexecute-to-main-activity-because-asynctask-is-a
     public AsyncResponse delegate = null;
@@ -25,7 +25,7 @@ public class FilterTask extends AsyncTask<Object, Integer, Allocation> implement
     }
 
     @Override
-    protected Allocation doInBackground(Object[] params) {
+    protected Bitmap doInBackground(Object[] params) {
         AbstractFilter filter = (AbstractFilter) params[0];
         filter.addObserver(this);
         filter.applyFilter();
@@ -39,7 +39,7 @@ public class FilterTask extends AsyncTask<Object, Integer, Allocation> implement
 
     }
 
-    protected void onPostExecute(Allocation result) {
+    protected void onPostExecute(Bitmap result) {
         delegate.processFinish(result);
 
     }

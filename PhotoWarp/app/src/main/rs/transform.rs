@@ -1,90 +1,129 @@
 #pragma version(1)
-#pragma rs java_package_name(cho8.photowarp)
-#pragma rs_fp_relaxed
+#pragma rs java_package_name(com.example.android.rs.rsimage)
 
-#include "rs_core.rsh"
-#define C_PI 3.141592653589793238462643383279502884197169399375
-
-const uchar4* input;
+rs_allocation input;
 rs_allocation output;
-int width;
-int height;
+#define C_PI 3.141592653589793238462643383279502884197169399375
+//const uchar4* input;
+//uchar4* output;
+uint32_t width;
+uint32_t height;
 
-static uchar4 getPixel(int x, int y) {
-	if (y >= height) {
-		y = height-1;
+static uchar4 getPixelAt(uint32_t, uint32_t);
+void setPixelAt(int, int, uchar4);
+
+
+// This code originates from supercomputingblog.com
+void swirl(float factor) {
+
+	int i, j;
+	double cX = (double) width/2.0f;
+	double cY = (double) height/2.0f;
+
+	for(j = 0; j < height; j++) {
+	    float relY=cY-j;
+		for(i = 0; i < width; i++) {
+		    float relX=i-cX;
+		     // relX and relY are points in our UV space
+
+            // Calculate the angle our points are relative to UV origin. Everything is in radians.
+            float originalAngle;
+
+            if (relX != 0) {
+                originalAngle = atan(fabs(relY)/fabs(relX));
+                if (relX > 0 && relY < 0) originalAngle = 2.0f*C_PI - originalAngle;
+                else if (relX <= 0 && relY >=0) originalAngle = C_PI-originalAngle;
+                else if (relX <=0 && relY <0) originalAngle += C_PI;
+            }
+            else {
+                // Take care of rare special case
+                if (relY >= 0) originalAngle = 0.5f * C_PI;
+                else originalAngle = 1.5f * C_PI;
+            }
+
+            // Calculate the distance from the center of the UV using pythagorean distance
+            float radius = sqrt(relX*relX + relY*relY);
+
+            // Use any equation we want to determine how much to rotate image by
+            //double newAngle = originalAngle + factor*radius; // a progressive twist
+            float newAngle = originalAngle + 1/(factor*radius+(4.0f/C_PI));
+
+            // Transform source UV coordinates back into bitmap coordinates
+            int srcX = (int)(floor(radius * cos(newAngle)+0.5f));
+            int srcY = (int)(floor(radius * sin(newAngle)+0.5f));
+            srcX += cX;
+            srcY += cY;
+            srcY = height - srcY;
+            // Clamp the source to legal image pixel
+            if (srcX < 0) srcX = 0;
+            else if (srcX >= width) srcX = width-1;
+            if (srcY < 0) srcY = 0;
+            else if (srcY >= height) srcY = height-1;
+
+            //Set pixel color
+            setPixelAt(i,j, getPixelAt(srcX, srcY));
+        }
 	}
-	if (y < 0) {
-		y = 0;
-	}
-	if (x >= width) {
-		x = width-1;
-	}
-	if (x < 0) {
-		x = 0;
-	}
-	return input[y*width + x];
+}
+
+void bulge(){
+
+    float centerX = width/2;
+    float centerY = height/2;
+
+    float bulgeRadius = min(centerX, centerY);
+    float bulgeRadius2 = bulgeRadius * bulgeRadius;
+    float bulgeFactor = 1.0f;
+
+    for (int i=0; i < height; i++){
+        for (int j = 0; j < width; j++){
+
+            float dx = j - centerX;
+            float dy = i - centerY;
+            float r = dx*dx + dy*dy;
+
+            // Pixels not inside the bulge are unaffected
+            if (r == 0 || r > bulgeRadius2){
+                setPixelAt(j,i, getPixelAt(j, i));
+            } else {
+
+              // Bulging algorithm
+              float dist = (float)sqrt( r / bulgeRadius2);
+              float t = (float) pow( sin((float) (C_PI*0.5*dist)), bulgeFactor );
+
+               dx *= t;
+               dy *= t;
+
+               int srcX = centerX + dx;
+               int srcY = centerY + dy;
+
+               setPixelAt(j,i,getPixelAt(srcX, srcY));
+
+            }
+        }
+    }
+}
+
+//a convenience method to clamp getting pixels into the image
+static uchar4 getPixelAt(uint32_t x, uint32_t y) {
+	if(y>=height) y = height-1;
+	if(y<0) y = 0;
+	if(x>=width) x = width-1;
+	if(x<0) x = 0;
+	//return input[y*width + x];
+	return rsGetElementAt_uchar4(input,x,y);
+
+}
+
+//take care of setting x,y on the 1d-array representing the bitmap
+void setPixelAt(int32_t x, int32_t y, uchar4 pixel) {
+    rsSetElementAt_uchar4(output,pixel,x,y);
+	//output[y*width + x] = pixel;
 }
 
 
-uchar4 RS_KERNEL bulge(uchar4 in, uint32_t x, uint32_t y) {
-	float r, a, rn, cX, cY;
-
-	float xdist, ydist;
-	float srcX, srcY;
-
-	cX = (float) width / 2.0f;
-	cY = (float) height / 2.0f;
-
-	xdist = ((float) x / (float) width);
-	ydist = ((float) y / (float) height);
-
-	r = sqrt(pow((xdist-0.5f), 2) + pow((ydist-0.5f), 2));
-	a = atan2((xdist-0.5f), (ydist-0.5f));
-	rn = pow(r, 2.0f)/0.5f;
-
-	srcX = (rn * sin(a) + 0.5f) * (float)width;
-	srcY = (rn * cos(a) + 0.5f) * (float)height;
-
-	return getPixel((int)srcX, (int)srcY);
-
-}
 
 
 
-uchar4 RS_KERNEL swirl(uchar4 in, uint32_t x, uint32_t y) {
-	int srcX, srcY;
-    	float relX, relY, cX, cY;
-    	float angle, new_angle, radius;
 
-    	cX = (float) width / 2.0f;
-    	cY = (float) height / 2.0f;
-    	relY = cY-y;
-
-    	relX = x - cX;
-    	if (relX != 0)
-    	{
-    		angle = atan( fabs(relY) / fabs(relX));
-    		if (relX > 0 && relY < 0) angle = 2.0f * C_PI - angle;
-    		else if (relX <= 0 && relY >= 0) angle = C_PI - angle;
-    		else if (relX <=0 && relY < 0) angle += C_PI;
-    	}
-    	else
-    	{
-    		if (relY >= 0) angle = 0.5f * C_PI;
-    		else angle = 1.5f * C_PI;
-    	}
-
-        radius = sqrt( relX*relX + relY*relY);
-    	new_angle = angle + (.001f * radius);
-
-    	srcX = (int)(radius * cos(new_angle)+0.5f);
-    	srcY = (int)(radius * sin(new_angle)+0.5f);
-    	srcX += cX;
-    	srcY += cY;
-    	srcY = height - srcY;
-
-    	return getPixel(srcX, srcY);
-
-}
 

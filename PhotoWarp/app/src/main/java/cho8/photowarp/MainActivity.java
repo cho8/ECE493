@@ -5,13 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v8.renderscript.Allocation;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,17 +18,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Observable;
-import java.util.Observer;
 
 
 public class MainActivity extends AppCompatActivity implements AsyncResponse{
@@ -50,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
     private ProgressBar mProgress;
 
     private Button undoButton;
-    private Button redoButton;
+    private Button saveButton;
     private Button filterButton;
 
     @Override
@@ -67,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         mProgress.setProgress(0);
 
         undoButton = (Button) findViewById(R.id.buttonUndo);
-        redoButton = (Button) findViewById(R.id.buttonRedo);
+        saveButton = (Button) findViewById(R.id.buttonSave);
 
         filterButton = (Button) findViewById(R.id.buttonFilter);
 
@@ -78,10 +65,10 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
             }
         });
 
-        redoButton.setOnClickListener(new OnClickListener() {
+        saveButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                saveImage();
             }
         });
 
@@ -89,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
             @Override
             public void onClick(View v) {
                 executeFilter(new SwirlFilter(getApplicationContext(),imageBmList.peek()));
+//                executeFilter(new BulgeFilter(getApplicationContext(), imageBmList.peek()));
             }
         });
 
@@ -214,45 +202,29 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
     }
 
     private void updateUI() {
+        // if no image loaded
         if (imageBmList.peek() != null) {
             initialTextView.setVisibility(View.INVISIBLE);
             filterButton.setEnabled(true);
+            saveButton.setEnabled(true);
         } else {
             filterButton.setEnabled(false);
+            saveButton.setEnabled(false);
         }
-
-        if (imageBmList.size() > 1)
-        {
+        // if history available to undo
+        if (imageBmList.size() > 1) {
             undoButton.setEnabled(true);
-        } else
-        {
+
+        } else {
             undoButton.setEnabled(false);
 
         }
     }
 
     private void saveImage() {
-        try {
-            // saving image taken with camera
-            // http://stackoverflow.com/a/3013625
-
-            String path = Environment.getExternalStorageDirectory().toString();
-            OutputStream fOut = null;
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-
-            File file = new File(path, timeStamp +".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
-            fOut = new FileOutputStream(file);
-
-            Bitmap pictureBitmap = imageBmList.peek();
-            pictureBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
-            fOut.flush(); // Not really required
-            fOut.close(); // do not forget to close the stream
-
-            MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SaveTask st = new SaveTask(getApplicationContext());
+        st.delegate = this;
+        st.execute(imageBmList);
     }
 
     private void undoImage() {
@@ -264,17 +236,13 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
     }
 
     @Override
-    public void processFinish(Allocation output) {
-        Bitmap bm = imageBmList.peek().copy(Bitmap.Config.ARGB_8888, true);
-        output.copyTo(bm);
-        setImage(bm);
+    public void processFinish(Bitmap output) {
+        setImage(output);
         updateUI();
-
-
     }
 
     @Override
     public void progressUpdate(int progress) {
-
+        mProgress.setProgress(progress);
     }
 }

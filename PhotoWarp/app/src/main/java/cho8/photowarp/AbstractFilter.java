@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.RenderScript;
 
+import com.example.android.rs.rsimage.ScriptC_transform;
+
 import java.util.Observable;
 
 /**
@@ -29,14 +31,16 @@ public abstract class AbstractFilter extends Observable {
         script = new ScriptC_transform(rs);
         script.set_height(image.getHeight());
         script.set_width(image.getWidth());
-        script.bind_input(in);
-
+        script.set_input(in);
+        script.set_output(out);
     }
 
     public abstract void applyFilter();
 
-    public Allocation getResult() {
-        return out;
+    public Bitmap getResult() {
+        Bitmap bm = Bitmap.createBitmap(imageBm.getWidth(), imageBm.getHeight(), Bitmap.Config.ARGB_8888);
+        out.copyTo(bm);
+        return bm;
     }
 }
 
