@@ -183,15 +183,17 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
 
     private void updateUI() {
 
-        // if no image loaded
+        // if image loaded
         if (imageBmList.peek() != null) {
             initialTextView.setVisibility(View.INVISIBLE);
             filterButton.setEnabled(true);
             saveButton.setEnabled(true);
+            imageView.setEnabled(true);
         } else {
             initialTextView.setVisibility(View.VISIBLE);
             filterButton.setEnabled(false);
             saveButton.setEnabled(false);
+            imageView.setEnabled(false);
         }
         // if history available to undo
         if (imageBmList.size() > 1) {

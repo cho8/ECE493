@@ -71,7 +71,6 @@ public class MyGestureListener extends GestureDetector.SimpleOnGestureListener i
         } else if (dx > width / 3) {
             listener.executeFishEyeFilter();
         }
-
     }
 
 
