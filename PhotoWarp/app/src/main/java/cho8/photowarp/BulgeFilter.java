@@ -18,6 +18,6 @@ public class BulgeFilter extends AbstractFilter {
 
     @Override
     public void applyFilter() {
-        script.invoke_bulge();
+        script.invoke_bulge(1.0f);
     }
 }

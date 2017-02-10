@@ -66,20 +66,20 @@ void swirl(float factor) {
 	}
 }
 
-void bulge(){
+void bulge(float factor){
 
-    float centerX = width/2;
-    float centerY = height/2;
+    float cX = width/2;
+    float cY = height/2;
 
-    float bulgeRadius = min(centerX, centerY);
+    float bulgeRadius = min(cX, cY);
     float bulgeRadius2 = bulgeRadius * bulgeRadius;
-    float bulgeFactor = 1.0f;
+    float bulgeFactor = factor;
 
     for (int i=0; i < height; i++){
         for (int j = 0; j < width; j++){
 
-            float dx = j - centerX;
-            float dy = i - centerY;
+            float dx = j - cX;
+            float dy = i - cY;
             float r = dx*dx + dy*dy;
 
             // Pixels not inside the bulge are unaffected
@@ -87,18 +87,65 @@ void bulge(){
                 setPixelAt(j,i, getPixelAt(j, i));
             } else {
 
-              // Bulging algorithm
-              float dist = (float)sqrt( r / bulgeRadius2);
-              float t = (float) pow( sin((float) (C_PI*0.5*dist)), bulgeFactor );
+                // Bulging algorithm
+                float dist = (float)sqrt( r / bulgeRadius2);
+                float t = (float) pow( sin((float) (C_PI*0.5*dist)), bulgeFactor );
 
-               dx *= t;
-               dy *= t;
+                dx *= t;
+                dy *= t;
 
-               int srcX = centerX + dx;
-               int srcY = centerY + dy;
+                int srcX = cX + dx;
+                int srcY = cY + dy;
 
-               setPixelAt(j,i,getPixelAt(srcX, srcY));
+                setPixelAt(j,i,getPixelAt(srcX, srcY));
 
+            }
+        }
+    }
+}
+
+void fishEye(){
+    for(int i=0; i < height; i++){
+
+        // Normalized i => [-1, 1]
+        float ni =  ((2*(float)i)/height)-1.0;
+        float ni2 = ni*ni;
+
+        for (int j = 0; j < width; j++){
+            // Normalized j => [-1, 1]
+            float nj = ((2*(float)j)/width)-1.0;
+            float nj2 = nj * nj;
+
+
+            //Distance from (0,0)
+            float r = sqrt(ni2 + nj2);
+
+            // Don't care about pixels outside the circle
+            if (0.0 <= r && r <= 1.0){
+
+                // New radius
+                // This formula taken from http://popscan.blogspot.ca/2012/04/fisheye-lens-equation-simple-fisheye.html
+                float nr = sqrt((float)(1.0-(r*r)));
+                nr = (r +  (1.0-nr)) / 2.0;
+
+
+                if (nr <= 1.0){
+
+                    // Polar cords angle
+                    float a = atan2(ni, nj);
+
+                    //Back to cartesian coords
+                    float cartesianJ = nr * cos(a);
+                    float cartesianI = nr * sin(a);
+
+                    // Denormalize cartesian coords
+                    int srcX = (int) (((cartesianJ+1)*width)/2.0);
+                    int srcY = (int) (((cartesianI+1)*height)/2.0);
+
+                    if( srcX >= 0 && srcY >=0 && srcX < width && srcY < height){
+                        setPixelAt(j, i, getPixelAt(srcX, srcY));
+                    }
+                }
             }
         }
     }
