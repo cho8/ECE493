@@ -1,4 +1,4 @@
-package cho8.photowarp;
+package cho8.photowarp.filter;
 
 /**
  * Created by cho on 2017-02-09.

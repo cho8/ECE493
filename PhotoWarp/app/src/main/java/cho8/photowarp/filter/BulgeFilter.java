@@ -1,9 +1,7 @@
-package cho8.photowarp;
+package cho8.photowarp.filter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-
-import com.example.android.rs.rsimage.ScriptC_transform;
 
 /**
  * Created by cho on 2017-02-06.

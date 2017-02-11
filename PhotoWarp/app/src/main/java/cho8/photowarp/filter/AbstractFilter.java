@@ -1,4 +1,4 @@
-package cho8.photowarp;
+package cho8.photowarp.filter;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -2,11 +2,9 @@ package cho8.photowarp;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.support.v8.renderscript.Allocation;
-import android.util.Log;
 
-import java.util.Observable;
-import java.util.Observer;
+import cho8.photowarp.AsyncResponse;
+import cho8.photowarp.filter.AbstractFilter;
 
 /**
  * Created by cho on 2017-01-22.

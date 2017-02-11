@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
+    android:layout_height="fill_parent">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,7 +23,7 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:gravity="center"
-            android:text="To start, open a an existing image..."
+            android:text="@string/initial"
             android:id="@+id/textInitial">
 
         </TextView>
@@ -40,12 +39,6 @@
         android:layout_alignParentBottom="true"
 
         android:id="@+id/layoutOption">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:id="@+id/buttonFilter"
-            android:text="Filter"/>
 
         <Button
             android:text="Undo"

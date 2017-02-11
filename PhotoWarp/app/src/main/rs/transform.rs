@@ -45,8 +45,8 @@ void swirl(float factor) {
             float radius = sqrt(relX*relX + relY*relY);
 
             // Use any equation we want to determine how much to rotate image by
-            //double newAngle = originalAngle + factor*radius; // a progressive twist
-            float newAngle = originalAngle + 1/(factor*radius+(4.0f/C_PI));
+            float newAngle = originalAngle + factor*radius; // a progressive twist
+            //float newAngle = originalAngle + 1/(factor*radius+(4.0f/C_PI));
 
             // Transform source UV coordinates back into bitmap coordinates
             int srcX = (int)(floor(radius * cos(newAngle)+0.5f));
@@ -120,7 +120,6 @@ void fishEye(){
             //Distance from (0,0)
             float r = sqrt(ni2 + nj2);
 
-            // Don't care about pixels outside the circle
             if (0.0 <= r && r <= 1.0){
 
                 // New radius

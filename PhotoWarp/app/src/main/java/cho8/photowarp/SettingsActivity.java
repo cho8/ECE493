@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -24,6 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
     private SeekBar undoSeek;
 
     private EditText editUndo;
+
 
     private Button applyButton;
 
@@ -41,6 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         editUndo = (EditText) findViewById(R.id.editUndo);
         editUndo.setText(String.valueOf(undoCount));
+
 
         applyButton = (Button) findViewById(R.id.buttonApply);
 

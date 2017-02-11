@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">PhotoWarp</string>
+
+    <string name="initial">No image selected</string>
+
+    <string name="help">
+        Gestures supported:\n
+        \tDouble tap - Fisheye Filter\n
+        \tZoom in - Bulge Filter\n
+        \tRectangle - Swirl Filter\n
+    </string>
+
 </resources>

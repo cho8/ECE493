@@ -4,19 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.gesture.Gesture;
+import android.gesture.GestureLibrary;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,11 +21,23 @@ import android.widget.TextView;
 
 import java.util.LinkedList;
 
+import cho8.photowarp.filter.AbstractFilter;
+import cho8.photowarp.filter.BulgeFilter;
+import cho8.photowarp.filter.FilterListener;
+import cho8.photowarp.filter.FishEyeFilter;
+import cho8.photowarp.filter.SwirlFilter;
+import cho8.photowarp.gesture.CircleGestureListener;
+import cho8.photowarp.gesture.CompositeListener;
+import cho8.photowarp.gesture.DoubleTapGestureListener;
+import cho8.photowarp.gesture.ScaleGestureListener;
+
 
 public class MainActivity extends AppCompatActivity implements AsyncResponse, FilterListener {
 
     final private int SELECT_IMAGE_CODE = 1;
     final private int CAMERA_IMAGE_CODE = 2;
+
+    private CompositeListener listener;
 
     private ImageView imageView;
     private TextView initialTextView;
@@ -41,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
 
     private Button undoButton;
     private Button saveButton;
-    private Button filterButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +58,16 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         imageBmList = new LinkedList<>();
 
         initializeViews();
+        updateUI();
+    }
+
+    private void initializeViews() {
+
+        imageView = (ImageView) findViewById(R.id.imageSelected);
+        initialTextView = (TextView) findViewById(R.id.textInitial);
+
+        undoButton = (Button) findViewById(R.id.buttonUndo);
+        saveButton = (Button) findViewById(R.id.buttonSave);
 
         undoButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -66,27 +83,13 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
             }
         });
 
-        filterButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                executeFilter(new SwirlFilter(getApplicationContext(), imageBmList.peek()));
-                executeFilter(new BulgeFilter(getApplicationContext(), imageBmList.peek()));
-            }
-        });
 
-        imageView.setOnTouchListener(new MyGestureListener(this));
+        listener = new CompositeListener();
+        listener.addGestureListener(new DoubleTapGestureListener(this));
+        listener.addGestureListener(new ScaleGestureListener(this, this));
+        listener.addGestureListener(new CircleGestureListener(this));
 
-        updateUI();
-    }
-
-    private void initializeViews() {
-        imageView = (ImageView) findViewById(R.id.imageSelected);
-        initialTextView = (TextView) findViewById(R.id.textInitial);
-
-        undoButton = (Button) findViewById(R.id.buttonUndo);
-        saveButton = (Button) findViewById(R.id.buttonSave);
-        filterButton = (Button) findViewById(R.id.buttonFilter);
-
+        imageView.setOnTouchListener(listener);
     }
 
 
@@ -146,6 +149,8 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         }
     }
 
+    /* loading images and updating imageview*/
+
     private void loadCameraImage(Intent data) {
         setImage((Bitmap) data.getExtras().get("data"));
         saveImage();
@@ -186,12 +191,10 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         // if image loaded
         if (imageBmList.peek() != null) {
             initialTextView.setVisibility(View.INVISIBLE);
-            filterButton.setEnabled(true);
             saveButton.setEnabled(true);
             imageView.setEnabled(true);
         } else {
             initialTextView.setVisibility(View.VISIBLE);
-            filterButton.setEnabled(false);
             saveButton.setEnabled(false);
             imageView.setEnabled(false);
         }
@@ -201,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
 
         } else {
             undoButton.setEnabled(false);
-
         }
     }
 
@@ -218,6 +220,9 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         updateUI();
         Log.i("UndoImageCount", String.valueOf(imageBmList.size()));
     }
+
+
+    /* Launching activities */
 
     private void launchSettingsActivity() {
         Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -242,13 +247,19 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         startActivityForResult(Intent.createChooser(browseIntent, "Select image"), SELECT_IMAGE_CODE);
     }
 
+    /* Help function for creating filter tasks */
+
     public void executeFilter(AbstractFilter filter) {
 
-        FilterTask filterTask = new FilterTask();
-        filterTask.delegate = this;
-        filterTask.execute(filter, this);
+        if (imageBmList.peek() != null) {
+            FilterTask filterTask = new FilterTask();
+            filterTask.delegate = this;
+            filterTask.execute(filter, this);
+        }
 
     }
+
+    /* interface overrides */
 
     @Override
     public void executeBulgeFilter() {
@@ -270,7 +281,6 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         setImage(output);
         updateUI();
     }
-
 
 
 }
