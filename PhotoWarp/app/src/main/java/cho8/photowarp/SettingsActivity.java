@@ -44,6 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         editUndo = (EditText) findViewById(R.id.editUndo);
         editUndo.setText(String.valueOf(undoCount));
+        setEditTextMaxLength(3);
 
 
         applyButton = (Button) findViewById(R.id.buttonApply);
@@ -148,24 +149,19 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-
-
     // check size input to odd and less than maxSize
     int sanitizeSizeInput (int size) {
         if (size < 0) {
             return 0;
         }
+        if (size > 99) {
+            return 99;
+        }
         return size;
     }
 
-
-    int setOddMaxSize(int size) {
-        if (size % 2 == 0) {
-            return size -1;
-        }
-        else return size;
-    }
-
+    // set max edittext length
+    // http://stackoverflow.com/questions/13414540/edittext-set-number-of-characters-programmatically
     public void setEditTextMaxLength(int length) {
         InputFilter[] FilterArray = new InputFilter[1];
         FilterArray[0] = new InputFilter.LengthFilter(length);
