@@ -18,12 +18,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
+    static private int default_undo = 5;
 
     private int undoCount;
 
 
     private SeekBar undoSeek;
-
     private EditText editUndo;
 
 
@@ -37,6 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         sharedPref = getApplicationContext().getSharedPreferences("SHARED_PREFERENCES",Context.MODE_PRIVATE);
+        undoCount = sharedPref.getInt("UNDO_COUNT",default_undo);
 
         undoSeek = (SeekBar) findViewById(R.id.seekUndo);
 
@@ -104,7 +105,6 @@ public class SettingsActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPref.edit();
 
                 editor.putInt("UNDO_COUNT", undoCount);
-                editor.putInt("MEDIAN_SIZE", undoCount);
                 editor.commit();
                 finish();
             }
@@ -129,7 +129,6 @@ public class SettingsActivity extends AppCompatActivity {
                             undoSeek.setProgress(undoCount);
                             editUndo.clearFocus();
 
-
                             InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                         }
@@ -153,7 +152,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     // check size input to odd and less than maxSize
     int sanitizeSizeInput (int size) {
-
+        if (size < 0) {
+            return 0;
+        }
         return size;
     }
 

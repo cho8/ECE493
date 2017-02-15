@@ -12,10 +12,10 @@ import cho8.photowarp.filter.FilterListener;
  * Created by cho on 2017-02-10.
  */
 
-public class CircleGestureListener implements View.OnTouchListener  {
+public class RectangleGestureListener implements View.OnTouchListener  {
 
     final private String DEBUG_TAG = "GestureDebug";
-    final private float THRESHOLD = 200;
+    final private float THRESHOLD = 150;
 
     private boolean top,right,bottom,left;
 
@@ -25,7 +25,7 @@ public class CircleGestureListener implements View.OnTouchListener  {
     private VelocityTracker mVelocityTracker = null;
 
 
-    public CircleGestureListener( FilterListener f) {
+    public RectangleGestureListener(FilterListener f) {
         listener = f;
     }
 
@@ -65,7 +65,7 @@ public class CircleGestureListener implements View.OnTouchListener  {
             case MotionEvent.ACTION_UP:
 
                 if(top && right && bottom && left) {
-                    listener.executeSwirlFilter();
+                    doAction();
                 }
                 resetEdges();
 
@@ -82,7 +82,7 @@ public class CircleGestureListener implements View.OnTouchListener  {
 
     /** Helper function to determine if xy-velocities from motion match an edge.
         @args:  direction - velocity in direction of the edge
-                constant - velocity perpendicular to edge
+                constant - velocity perpendicular to edge. If within threshold, it is disregarded.
      */
     public boolean withinThreshold(float direction, float constant) {
         if (Math.abs(direction) > THRESHOLD && Math.abs(constant) < THRESHOLD) {
@@ -91,7 +91,9 @@ public class CircleGestureListener implements View.OnTouchListener  {
         return false;
     }
 
-    /* Flags the edge that was drawn based on the velocity of the motionevent */
+    /** Flags the edge that was drawn based on the velocity of the motionevent
+
+     */
 
     public void flagEdgeDrawn(float xVel, float yVel) {
 
@@ -104,12 +106,15 @@ public class CircleGestureListener implements View.OnTouchListener  {
             bottom = true;
         } else if (yVel >0 && withinThreshold(yVel,xVel) && top && right && bottom) {
             left = true;
-            Log.d(DEBUG_TAG, "Rectangle drawn");
         }
 
     }
 
     public void resetEdges() {
         top = right = bottom = left = false;
+    }
+
+    public void doAction() {
+        listener.executeSwirlFilter();
     }
 }

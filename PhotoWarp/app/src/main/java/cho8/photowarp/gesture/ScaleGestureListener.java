@@ -18,8 +18,7 @@ public class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGest
     FilterListener listener;
     ScaleGestureDetector mDetector;
 
-    float startSpan, endSpan, startX, startY, endX, endY;
-
+    float startSpan, endSpan;
 
 
     public ScaleGestureListener(Context c, FilterListener l) {
@@ -36,16 +35,13 @@ public class ScaleGestureListener extends ScaleGestureDetector.SimpleOnScaleGest
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {
         startSpan = detector.getCurrentSpan();
-        startX = detector.getCurrentSpanX();
-        startY = detector.getCurrentSpanY();
         return true;
     }
 
     @Override
     public void onScaleEnd(ScaleGestureDetector detector) {
         endSpan = detector.getCurrentSpan();
-        endY = detector.getCurrentSpanY();
-        endX = detector.getCurrentSpanX();
+
         if (startSpan < endSpan) {
             listener.executeBulgeFilter();
             return;

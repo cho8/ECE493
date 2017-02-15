@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.gesture.GestureLibrary;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -26,7 +25,7 @@ import cho8.photowarp.filter.BulgeFilter;
 import cho8.photowarp.filter.FilterListener;
 import cho8.photowarp.filter.FishEyeFilter;
 import cho8.photowarp.filter.SwirlFilter;
-import cho8.photowarp.gesture.CircleGestureListener;
+import cho8.photowarp.gesture.RectangleGestureListener;
 import cho8.photowarp.gesture.CompositeListener;
 import cho8.photowarp.gesture.DoubleTapGestureListener;
 import cho8.photowarp.gesture.ScaleGestureListener;
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         listener = new CompositeListener();
         listener.addGestureListener(new DoubleTapGestureListener(this));
         listener.addGestureListener(new ScaleGestureListener(this, this));
-        listener.addGestureListener(new CircleGestureListener(this));
+        listener.addGestureListener(new RectangleGestureListener(this));
 
         imageView.setOnTouchListener(listener);
     }
@@ -149,13 +148,13 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         }
     }
 
-    /* loading images and updating imageview*/
-
+    /* Load image from Camera intent*/
     private void loadCameraImage(Intent data) {
         setImage((Bitmap) data.getExtras().get("data"));
         saveImage();
     }
 
+    /* Load image from browse intent */
     private void loadImage(Intent data) {
         try {
             // Display selected image
@@ -168,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         }
     }
 
-
+    /* Set the imageview as retrieved bitmap */
     private void setImage(Bitmap data) {
 
         imageBmList.addFirst(data);
@@ -186,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         imageView.setImageBitmap(imageBmList.peek());
     }
 
+    /* enable or disable ui elements */
     private void updateUI() {
 
         // if image loaded
@@ -201,9 +201,11 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         // if history available to undo
         if (imageBmList.size() > 1) {
             undoButton.setEnabled(true);
+            saveButton.setEnabled(true);
 
         } else {
             undoButton.setEnabled(false);
+            saveButton.setEnabled(false);
         }
     }
 
@@ -247,8 +249,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
         startActivityForResult(Intent.createChooser(browseIntent, "Select image"), SELECT_IMAGE_CODE);
     }
 
-    /* Help function for creating filter tasks */
-
+    /* Helper function for creating filter tasks */
     public void executeFilter(AbstractFilter filter) {
 
         if (imageBmList.peek() != null) {
@@ -259,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse, Fi
 
     }
 
-    /* interface overrides */
+    /* Interface overrides */
 
     @Override
     public void executeBulgeFilter() {

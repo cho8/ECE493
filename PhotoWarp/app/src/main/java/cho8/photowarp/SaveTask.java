@@ -40,11 +40,13 @@ public class SaveTask extends AsyncTask<Object, Integer, Void>{
             OutputStream fOut = null;
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
-            File file = new File(path, timeStamp +".jpg"); // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+            // the File to save , append increasing numeric counter to prevent files from getting overwritten.
+            File file = new File(path, timeStamp +".jpg");
             fOut = new FileOutputStream(file);
 
             Bitmap pictureBitmap = imageBmList.peek();
-            pictureBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut); // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+            // saving the Bitmap to a file compressed as a JPEG with 85% compression rate
+            pictureBitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.flush(); // Not really required
             fOut.close(); // do not forget to close the stream
 
